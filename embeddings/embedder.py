@@ -18,6 +18,12 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 
+def _chunk_to_text(chunk):
+    if isinstance(chunk, dict):
+        return chunk.get("text", "")
+    return chunk
+
+
 
 def embed_chunks(chunks):
     """
@@ -29,7 +35,7 @@ def embed_chunks(chunks):
         contents=[
             types.Content(
                 parts=[
-                    types.Part.from_text(text=chunk)
+                    types.Part.from_text(text=_chunk_to_text(chunk))
                 ]
             )
             for chunk in chunks
