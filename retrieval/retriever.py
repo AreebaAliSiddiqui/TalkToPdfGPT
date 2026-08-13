@@ -18,16 +18,32 @@ def embed_query(query):
     )
     return response.embeddings[0].values
 
-
-
-
 def retrieve(query, n_results=5):
     """
-    Takes a query vector and retrieves the top n_results from the Chroma collection.
+    Embeds the user's query and retrieves the most relevant
+    chunks from Chroma.
+
+    Returns a list of clean chunk dictionaries.
     """
+
     query_vector = embed_query(query)
+
     results = collection.query(
         query_embeddings=[query_vector],
         n_results=n_results
     )
-    return results
+
+    documents = results["documents"][0]
+    metadatas = results["metadatas"][0]
+
+    retrieved_chunks = []
+
+    for document, metadata in zip(documents, metadatas):
+        retrieved_chunks.append({
+            "text": document,
+            "page_number": metadata["page_number"],
+            "chunk_number": metadata["chunk_number"],
+            "document_id": metadata["document_id"]
+        })
+
+    return retrieved_chunks

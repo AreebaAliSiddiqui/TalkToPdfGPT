@@ -1,15 +1,15 @@
 from retrieval.retriever import retrieve
 
 
-query = "What is the main topic of Chapter 3?"
+query = "What are the principles of agility?"
 
 results = retrieve(query, n_results=5)
 
-print("Retrieved documents:")
-print(results["documents"])
+print(f"Retrieved {len(results)} chunks:\n")
 
-print("\nMetadata:")
-print(results["metadatas"])
-
-print("\nDistances:")
-print(results["distances"])
+for chunk in results:
+    print(f"Page: {chunk['page_number']}")
+    print(f"Chunk: {chunk['chunk_number']}")
+    print(f"Document ID: {chunk['document_id']}")
+    print(f"Text: {chunk['text'][:200]}...")
+    print("-" * 50)
