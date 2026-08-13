@@ -19,6 +19,7 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 
 
 def _chunk_to_text(chunk):
+    
     if isinstance(chunk, dict):
         return chunk.get("text", "")
     return chunk

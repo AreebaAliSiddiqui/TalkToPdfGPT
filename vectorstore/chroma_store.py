@@ -8,22 +8,31 @@
 import chromadb
 from datetime import datetime
 
+
 client = chromadb.PersistentClient(path="./chroma_db")
 
 collection = client.get_or_create_collection(
-    name="documents",
+    name="documents_gemini",
     embedding_function=None,
     metadata={
-            "description": "my first Chroma collection",
-            "created": str(datetime.now())
-        }
+        "description": "Talk to PDF GPT documents",
+        "created": str(datetime.now())
+    }
 )
+
+
 def add_chunks(chunks, vectors, metadata):
     ids = [f"id_{i}" for i in range(len(chunks))]
+
+    documents = [chunk["text"] for chunk in chunks]
+
     collection.add(
         ids=ids,
         embeddings=vectors,
-        documents=chunks,
+        documents=documents,
         metadatas=metadata
     )
+
+    print(f"Documents stored: {len(documents)}")
+
     return collection
