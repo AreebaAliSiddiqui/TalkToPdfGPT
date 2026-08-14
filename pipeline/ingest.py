@@ -26,3 +26,4 @@ def ingest_pdf(file_path):
         })
 
     add_chunks(chunks, vectors, metadata_list)
+    return document_id
