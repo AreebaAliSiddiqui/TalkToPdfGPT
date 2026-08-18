@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TalktoPdfGPT</title>
+</head>
+
+<body>
+
+    <h1>TalktoPdfGPT</h1>
+
+    <p>Upload a PDF and ask questions about it.</p>
+
+    <!-- PDF Upload -->
+
+    <h2>Upload PDF</h2>
+
+    <form id="upload-form">
+
+        <input
+            type="file"
+            id="pdf-file"
+            name="file"
+            accept=".pdf"
+            required
+        >
+
+        <button type="submit">
+            Upload PDF
+        </button>
+
+    </form>
+
+     <p id="upload-status"></p>
+
+
+    <!-- Question -->
+
+    <h2>Ask a Question</h2>
+
+    <form id="question-form">
+
+        <input
+            type="text"
+            id="question"
+            placeholder="Ask something about your PDF..."
+            required
+        >
+
+        <button type="submit">
+            Ask
+        </button>
+
+    </form>
+
+    <p id="answer"></p>
+
+
+    <script>
+        // -------------------------
+        // PDF Upload
+        // -------------------------
+        const form = document.getElementById("upload-form");
+        const fileInput = document.getElementById("pdf-file");
+        const status = document.getElementById("upload-status");
+
+        form.addEventListener("submit", async (event) => {
+
+            event.preventDefault();
+
+            const file = fileInput.files[0];
+
+            if (!file) {
+                status.textContent = "Please select a PDF.";
+                return;
+            }
+
+            status.textContent = "Uploading and processing PDF...";
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+
+                const response = await fetch("/upload", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    status.textContent = result.error;
+                    return;
+                }
+
+                status.textContent =
+                    "PDF uploaded successfully! Document ID: "
+                    + result.document_id;
+
+            } catch (error) {
+
+                status.textContent =
+                    "Something went wrong while uploading the PDF.";
+
+                console.error(error);
+            }
+
+        });
+
+        // -------------------------
+        // Ask Question
+        // -------------------------
+
+        const questionForm = document.getElementById("question-form");
+        const questionInput = document.getElementById("question");
+        const answerElement = document.getElementById("answer");
+
+        questionForm.addEventListener("submit", async (event) => {
+
+            event.preventDefault();
+
+            const question = questionInput.value.trim();
+
+            if (!question) {
+                answerElement.textContent =
+                    "Please enter a question.";
+
+                return;
+            }
+
+            answerElement.textContent =
+                "Thinking...";
+
+            try {
+
+                const response = await fetch("/ask", {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        question: question
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    answerElement.textContent = result.error;
+                    return;
+                }
+
+                answerElement.textContent = result.answer;
+
+            } catch (error) {
+
+                answerElement.textContent =
+                    "Something went wrong while asking the question.";
+
+                console.error(error);
+            }
+
+        });
+        
+    </script>
+
+</body>
+</html>
