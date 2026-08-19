@@ -18,7 +18,7 @@ def embed_query(query):
     )
     return response.embeddings[0].values
 
-def retrieve(query, n_results=5):
+def retrieve(query, document_id=None, n_results=5):
     """
     Embeds the user's query and retrieves the most relevant
     chunks from Chroma.
@@ -28,11 +28,22 @@ def retrieve(query, n_results=5):
 
     query_vector = embed_query(query)
 
-    results = collection.query(
-        query_embeddings=[query_vector],
-        n_results=n_results
-    )
+    query_kwargs = {
+        "query_embeddings" : [query_vector],
+        "n_results" : n_results
+    }
 
+    if document_id:
+        #results = collection.query(
+        #    query_embeddings=[query_vector],
+        #    n_results=n_results,
+        #    where={"document_id": document_id} it meand find the closest chunk anywhere in the collection
+        query_kwargs["where"] = {
+            "document_id": document_id
+        }
+
+    results = collection.query(**query_kwargs)    
+    
     documents = results["documents"][0]
     metadatas = results["metadatas"][0]
 
