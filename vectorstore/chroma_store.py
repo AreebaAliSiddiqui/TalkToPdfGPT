@@ -21,6 +21,16 @@ collection = client.get_or_create_collection(
     }
 )
 
+def find_document_by_hash(document_hash):
+    results = collection.get(
+        where={"document_hash": document_hash},
+        include=["metadatas"]
+    )
+
+    if not results["metadatas"]:
+        return None
+
+    return results["metadatas"][0]["document_id"]
 
 def add_chunks(chunks, vectors, metadata):
     ids = [
