@@ -24,9 +24,9 @@ collection = client.get_or_create_collection(
 
 def add_chunks(chunks, vectors, metadata):
     ids = [
-        f"{item['document_id']}_chunk_{item['chunk_number']}" 
-        for item in metadata
-    ]
+    f"{item['document_id']}_page_{item['page_number']}_chunk_{item['chunk_number']}"
+    for item in metadata
+]
 
     documents = [chunk["text"] for chunk in chunks]
 
