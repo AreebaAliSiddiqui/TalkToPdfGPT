@@ -28,6 +28,9 @@ def ingest_pdf(file_path):
 
     chunks = chunk_text(pages)
 
+    if not chunks:
+        raise ValueError("This PDF contains no extractable text.")
+
     vectors = embed_chunks(chunks)
 
     document_id = str(uuid.uuid4())

@@ -36,7 +36,10 @@ def upload_pdf():
 
     file.save(file_path)
 
-    document_id = ingest_pdf(file_path)
+    try:
+        document_id = ingest_pdf(file_path)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
     return jsonify({
         "message": "PDF uploaded and ingested successfully",
