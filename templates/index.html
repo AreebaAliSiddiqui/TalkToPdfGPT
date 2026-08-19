@@ -57,7 +57,7 @@
 
     <p id="answer"></p>
 
-
+    let activeDocumentId = null;
     <script>
         // -------------------------
         // PDF Upload
@@ -92,17 +92,16 @@
                 const result = await response.json();
 
                 if (!response.ok) {
-                    status.textContent = result.error;
+                    uploadStatus.textContent = result.error;
                     return;
                 }
-
-                status.textContent =
-                    "PDF uploaded successfully! Document ID: "
-                    + result.document_id;
+                activeDocumentId = result.document_id; // Store the document ID for later use
+                uploadStatus.textContent =
+                    "PDF uploaded successfully!";
 
             } catch (error) {
 
-                status.textContent =
+                uploadStatus.textContent =
                     "Something went wrong while uploading the PDF.";
 
                 console.error(error);
@@ -123,7 +122,12 @@
             event.preventDefault();
 
             const question = questionInput.value.trim();
+            if (!activeDocumentId) {
+                answerElement.textContent =
+                    "Please upload a PDF first.";
 
+                return;
+}
             if (!question) {
                 answerElement.textContent =
                     "Please enter a question.";
@@ -144,7 +148,8 @@
                     },
 
                     body: JSON.stringify({
-                        question: question
+                        question: question,
+                        document_id: activeDocumentId  // Send the document ID along with the question
                     })
                 });
 

@@ -46,12 +46,20 @@ def upload_pdf():
 @app.route("/ask", methods=["POST"])
 def ask_question():
     data = request.get_json()
+
     question = data.get("question")
+    document_id = data.get("document_id")
 
     if not question:
         return jsonify({"error": "No question provided"}), 400
 
-    retrieved_chunks = retrieve(question)
+    if not document_id:
+        return jsonify({"error": "No document selected"}), 400
+
+    retrieved_chunks = retrieve(
+        question,
+        document_id=document_id   
+    )
    
     # Here you would call your retrieval and answer generation logic
     retrieved_chunks = retrieve(question)
