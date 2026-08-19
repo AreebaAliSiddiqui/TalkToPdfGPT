@@ -4,6 +4,7 @@
 1. Creating a persistent Chroma client
 2. Creating/getting a collection/table
 3. Create a function to add chunks, vectors, and metadata to the collection,The IDs should also be generated.
+4. Make the vector store capable of filtering by document_id
 """
 import chromadb
 from datetime import datetime
@@ -22,7 +23,10 @@ collection = client.get_or_create_collection(
 
 
 def add_chunks(chunks, vectors, metadata):
-    ids = [f"id_{i}" for i in range(len(chunks))]
+    ids = [
+        f"{item['document_id']}_chunk_{item['chunk_number']}" 
+        for item in metadata
+    ]
 
     documents = [chunk["text"] for chunk in chunks]
 
