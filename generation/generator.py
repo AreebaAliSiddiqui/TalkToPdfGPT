@@ -41,11 +41,15 @@ PDF CONTEXT:
 USER QUESTION:
 {query}
 """
-
-    response = client.models.generate_content(
-        model="gemini-3.6-flash",
+    try:
+        response = client.models.generate_content(
+        model="invalid-model-for-testing",
         contents=prompt
     )
+    except Exception as e:
+        raise RuntimeError(
+        "The AI service is currently unavailable. Please try again later."
+    ) from e
 
     return response.text
 

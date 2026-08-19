@@ -68,7 +68,10 @@ def ask_question():
             "answer": "Your question doesn't seem to be answered by the active PDF."
         })
     # Here you would call your retrieval and answer generation logic
-    answer = generate_answer(question, retrieved_chunks)
+    try:
+        answer = generate_answer(question, retrieved_chunks)
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 500
 
     return jsonify({
     "answer": answer
