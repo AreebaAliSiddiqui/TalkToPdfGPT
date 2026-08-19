@@ -57,122 +57,153 @@
 
     <p id="answer"></p>
 
-    let activeDocumentId = null;
+    
     <script>
-        // -------------------------
-        // PDF Upload
-        // -------------------------
-        const form = document.getElementById("upload-form");
-        const fileInput = document.getElementById("pdf-file");
-        const status = document.getElementById("upload-status");
+    // -------------------------
+    // Active Document
+    // -------------------------
+    let activeDocumentId = null;
 
-        form.addEventListener("submit", async (event) => {
 
-            event.preventDefault();
+    // -------------------------
+    // PDF Upload
+    // -------------------------
+    const uploadForm = document.getElementById("upload-form");
+    const fileInput = document.getElementById("pdf-file");
+    const uploadStatus = document.getElementById("upload-status");
 
-            const file = fileInput.files[0];
 
-            if (!file) {
-                status.textContent = "Please select a PDF.";
-                return;
-            }
+    uploadForm.addEventListener("submit", async (event) => {
 
-            status.textContent = "Uploading and processing PDF...";
+        event.preventDefault();
 
-            const formData = new FormData();
-            formData.append("file", file);
+        const file = fileInput.files[0];
 
-            try {
+        if (!file) {
+            uploadStatus.textContent = "Please select a PDF.";
+            return;
+        }
 
-                const response = await fetch("/upload", {
-                    method: "POST",
-                    body: formData
-                });
+        uploadStatus.textContent =
+            "Uploading and processing PDF...";
 
-                const result = await response.json();
+        const formData = new FormData();
+        formData.append("file", file);
 
-                if (!response.ok) {
-                    uploadStatus.textContent = result.error;
-                    return;
-                }
-                activeDocumentId = result.document_id; // Store the document ID for later use
+        try {
+
+            const response = await fetch("/upload", {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
                 uploadStatus.textContent =
-                    "PDF uploaded successfully!";
-
-            } catch (error) {
-
-                uploadStatus.textContent =
-                    "Something went wrong while uploading the PDF.";
-
-                console.error(error);
-            }
-
-        });
-
-        // -------------------------
-        // Ask Question
-        // -------------------------
-
-        const questionForm = document.getElementById("question-form");
-        const questionInput = document.getElementById("question");
-        const answerElement = document.getElementById("answer");
-
-        questionForm.addEventListener("submit", async (event) => {
-
-            event.preventDefault();
-
-            const question = questionInput.value.trim();
-            if (!activeDocumentId) {
-                answerElement.textContent =
-                    "Please upload a PDF first.";
-
-                return;
-}
-            if (!question) {
-                answerElement.textContent =
-                    "Please enter a question.";
-
+                    result.error || "Upload failed.";
                 return;
             }
+
+            activeDocumentId = result.document_id;
+
+            uploadStatus.textContent =
+                "PDF uploaded successfully!";
+
+            console.log(
+                "Active document ID:",
+                activeDocumentId
+            );
+
+        } catch (error) {
+
+            uploadStatus.textContent =
+                "Something went wrong while uploading the PDF.";
+
+            console.error(error);
+        }
+
+    });
+
+
+    // -------------------------
+    // Ask Question
+    // -------------------------
+    const questionForm = document.getElementById("question-form");
+    const questionInput = document.getElementById("question");
+    const answerElement = document.getElementById("answer");
+
+
+    questionForm.addEventListener("submit", async (event) => {
+
+        event.preventDefault();
+
+        const question = questionInput.value.trim();
+
+        if (!activeDocumentId) {
 
             answerElement.textContent =
-                "Thinking...";
+                "Please upload a PDF first.";
 
-            try {
+            return;
+        }
 
-                const response = await fetch("/ask", {
-                    method: "POST",
+        if (!question) {
 
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+            answerElement.textContent =
+                "Please enter a question.";
 
-                    body: JSON.stringify({
-                        question: question,
-                        document_id: activeDocumentId  // Send the document ID along with the question
-                    })
-                });
+            return;
+        }
 
-                const result = await response.json();
+        answerElement.textContent =
+            "Thinking...";
 
-                if (!response.ok) {
-                    answerElement.textContent = result.error;
-                    return;
-                }
 
-                answerElement.textContent = result.answer;
+        try {
 
-            } catch (error) {
+            const response = await fetch("/ask", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    question: question,
+                    document_id: activeDocumentId
+                })
+
+            });
+
+
+            const result = await response.json();
+
+
+            if (!response.ok) {
 
                 answerElement.textContent =
-                    "Something went wrong while asking the question.";
+                    result.error || "Unable to answer the question.";
 
-                console.error(error);
+                return;
             }
 
-        });
-        
-    </script>
 
+            answerElement.textContent =
+                result.answer;
+
+
+        } catch (error) {
+
+            answerElement.textContent =
+                "Something went wrong while asking the question.";
+
+            console.error(error);
+        }
+
+    });
+
+</script>
 </body>
 </html>

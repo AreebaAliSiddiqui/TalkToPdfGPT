@@ -58,12 +58,13 @@ def ask_question():
 
     retrieved_chunks = retrieve(
         question,
-        document_id=document_id   
+        document_id  
     )
-   
+    if not retrieved_chunks:
+        return jsonify({
+            "answer": "Your question doesn't seem to be answered by the active PDF."
+        })
     # Here you would call your retrieval and answer generation logic
-    retrieved_chunks = retrieve(question)
-
     answer = generate_answer(question, retrieved_chunks)
 
     return jsonify({
