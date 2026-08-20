@@ -160,12 +160,11 @@
             questionInput.value = "";
 
 
-            const loadingMessage =
+           const loadingMessage =
     addMessage(
         "Thinking...",
-        "ai-message"
+        "ai-message loading-message"
     );
-
 
             try {
 
@@ -254,11 +253,10 @@
     );
 
 
-    message.classList.add(
-        "message",
-        className
-    );
-
+   message.classList.add(
+    "message",
+    ...className.split(" ")
+);
 
     if (className === "user-message") {
 
@@ -290,5 +288,7 @@
 
     chatMessages.scrollTop =
         chatMessages.scrollHeight;
-}
-return message;
+
+    return message;
+    }
+    
