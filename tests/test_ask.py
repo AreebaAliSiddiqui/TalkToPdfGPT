@@ -1,4 +1,5 @@
 from app import app
+from unittest.mock import patch
 def test_ask_rejects_missing_question():
     client = app.test_client()
 
@@ -29,3 +30,31 @@ def test_ask_rejects_missing_document():
     data = response.get_json()
 
     assert data["error"] == "No document selected"
+
+    
+
+
+def test_ask_retrieval_failure_returns_503():
+    client = app.test_client()
+
+    with patch(
+        "app.retrieve",
+        side_effect=RuntimeError(
+            "The retrieval service is currently unavailable."
+        )
+    ):
+        response = client.post(
+            "/ask",
+            json={
+                "question": "What is this document about?",
+                "document_id": "test-document-id"
+            }
+        )
+
+    assert response.status_code == 503
+
+    data = response.get_json()
+
+    assert data["error"] == (
+        "The retrieval service is currently unavailable."
+    )
