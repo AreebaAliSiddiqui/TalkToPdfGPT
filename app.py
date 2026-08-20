@@ -45,7 +45,6 @@ def upload_pdf():
 
     file.save(file_path)
    
-
     try:
         
         document_id = ingest_pdf(file_path)
