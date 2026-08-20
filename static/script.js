@@ -35,6 +35,8 @@
     const emptyChat =
         document.getElementById("empty-chat");
 
+    const clearChatButton =
+    document.getElementById("clear-chat");
 
     // -------------------------
     // PDF Upload
@@ -119,6 +121,7 @@
         }
     );
 
+   
 
     // -------------------------
     // Ask Question
@@ -365,3 +368,24 @@ function addSources(wrapper, sources) {
         sourcesContainer
     );
 }
+
+
+
+     clearChatButton.addEventListener(
+    "click",
+    () => {
+
+        chatMessages.innerHTML = `
+            <div
+                id="empty-chat"
+                class="empty-chat"
+            >
+                <p>
+                    Upload a PDF to start chatting with it.
+                </p>
+            </div>
+        `;
+
+        questionInput.value = "";
+    }
+);
