@@ -205,7 +205,14 @@
 
 
                 loadingMessage.textContent =
-                    result.answer;
+    result.answer;
+
+if (result.sources && result.sources.length > 0) {
+    addSources(
+        loadingMessage.parentElement,
+        result.sources
+    );
+}
 
 
             } catch (error) {
@@ -291,4 +298,70 @@
 
     return message;
     }
-    
+
+function addSources(wrapper, sources) {
+
+    const uniquePages = [
+        ...new Set(
+            sources.map(
+                source => source.page_number
+            )
+        )
+    ];
+
+    const sourcesContainer =
+        document.createElement("div");
+
+    sourcesContainer.classList.add(
+        "sources-container"
+    );
+
+    const sourcesTitle =
+        document.createElement("div");
+
+    sourcesTitle.classList.add(
+        "sources-title"
+    );
+
+    sourcesTitle.textContent =
+        "Sources";
+
+    sourcesContainer.appendChild(
+        sourcesTitle
+    );
+
+
+    const sourcesList =
+        document.createElement("div");
+
+    sourcesList.classList.add(
+        "sources-list"
+    );
+
+
+    uniquePages.forEach(pageNumber => {
+
+        const sourceCard =
+            document.createElement("div");
+
+        sourceCard.classList.add(
+            "source-card"
+        );
+
+        sourceCard.textContent =
+            `Page ${pageNumber}`;
+
+        sourcesList.appendChild(
+            sourceCard
+        );
+    });
+
+
+    sourcesContainer.appendChild(
+        sourcesList
+    );
+
+    wrapper.appendChild(
+        sourcesContainer
+    );
+}

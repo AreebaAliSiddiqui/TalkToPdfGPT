@@ -121,8 +121,14 @@ def ask_question():
         }), 500
 
     return jsonify({
-        "answer": answer
-    })
+    "answer": answer,
+    "sources": [
+        {
+            "page_number": chunk["page_number"]
+        }
+        for chunk in retrieved_chunks
+    ]
+})
 
 
 if __name__ == "__main__":
