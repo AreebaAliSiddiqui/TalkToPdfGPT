@@ -1,4 +1,5 @@
 import io
+import os 
 from unittest.mock import patch
 from app import app
 
@@ -83,3 +84,39 @@ def test_upload_success():
     )
 
     assert data["document_id"] == "test-document-id"
+
+def test_upload_ingestion_failure_deletes_file():
+    client = app.test_client()
+
+    upload_folder = "data/uploads"
+
+    files_before = set(os.listdir(upload_folder))
+
+    with patch(
+        "app.ingest_pdf",
+        side_effect=RuntimeError(
+            "The AI embedding service is currently unavailable."
+        )
+    ):
+        response = client.post(
+            "/upload",
+            data={
+                "file": (
+                    io.BytesIO(b"%PDF-1.4 fake pdf content"),
+                    "test.pdf"
+                )
+            },
+            content_type="multipart/form-data"
+        )
+
+    assert response.status_code == 503
+
+    data = response.get_json()
+
+    assert data["error"] == (
+        "The AI embedding service is currently unavailable."
+    )
+
+    files_after = set(os.listdir(upload_folder))
+
+    assert files_after == files_before
