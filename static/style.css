@@ -169,6 +169,13 @@
         }
 
         /* Question input */
+        .question-form input {
+    min-height: 44px;
+}
+
+.question-form button {
+    min-height: 44px;
+}
 
         .question-area {
             border-top: 1px solid #e5e7eb;
@@ -296,9 +303,36 @@
             }
 
             .message {
-                max-width: 95%;
-            }
+    max-width: 80%;
+    padding: 13px 16px;
+    border-radius: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+            
         }
+
+        .upload-form {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.upload-form input[type="file"] {
+    width: 100%;
+}
+
+.upload-form button {
+    width: 100%;
+}
+.chat-card {
+    min-height: 450px;
+}
+
+.chat-messages {
+    padding: 16px;
+}
 /* Sources */
 
 .sources-container {
