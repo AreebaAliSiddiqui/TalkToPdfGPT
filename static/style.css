@@ -309,3 +309,7 @@
     font-size: 12px;
     color: #4b5563;
 }
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

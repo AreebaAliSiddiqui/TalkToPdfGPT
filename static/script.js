@@ -38,6 +38,8 @@
     const clearChatButton =
     document.getElementById("clear-chat");
 
+    const askButton =
+    questionForm.querySelector("button");
     // -------------------------
     // PDF Upload
     // -------------------------
@@ -67,9 +69,14 @@
 
             formData.append("file", file);
 
+            const uploadButton =
+    uploadForm.querySelector("button");
+
 
             try {
 
+                uploadButton.disabled = true;
+uploadButton.textContent = "Processing...";
                 const response = await fetch(
                     "/upload",
                     {
@@ -117,11 +124,13 @@
 
                 console.error(error);
             }
-
+            finally{
+                uploadButton.disabled = false;
+uploadButton.textContent = "Upload PDF";
+            }
         }
     );
 
-   
 
     // -------------------------
     // Ask Question
@@ -170,7 +179,11 @@
     );
 
             try {
+                const askButton =
+    questionForm.querySelector("button");
 
+askButton.disabled = true;
+askButton.textContent = "Thinking...";
                 const response =
                     await fetch(
                         "/ask",
@@ -193,9 +206,6 @@
 
                 const result =
                     await response.json();
-
-
-                
 
                 if (!response.ok) {
 
@@ -232,6 +242,9 @@ if (result.sources && result.sources.length > 0) {
                     "Something went wrong while asking the question.";
 
                 console.error(error);
+            } finally{
+                askButton.disabled = false;
+askButton.textContent = "Ask";
             }
 
         }
