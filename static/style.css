@@ -388,3 +388,23 @@ button:disabled {
 .secondary-button:hover {
     background: #f0fdf4;
 }
+
+.message-sources {
+    margin-top: 8px;
+    font-size: 12px;
+}
+
+.sources-title {
+    color: #6b7280;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.source-item {
+    display: inline-block;
+    margin-right: 6px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #f3f4f6;
+    color: #4b5563;
+}

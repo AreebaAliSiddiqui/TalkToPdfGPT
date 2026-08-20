@@ -120,16 +120,19 @@ def ask_question():
             "error": "Something went wrong while generating the answer."
         }), 500
 
+    sources = []
+
+    for chunk in retrieved_chunks:
+        sources.append({
+            "page_number": chunk["page_number"],
+            "chunk_number": chunk["chunk_number"]
+    })
     return jsonify({
     "answer": answer,
-    "sources": [
-        {
-            "page_number": chunk["page_number"]
-        }
-        for chunk in retrieved_chunks
-    ]
+    "sources":sources
 })
 
 
 if __name__ == "__main__":
     app.run(debug=True)
+

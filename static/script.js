@@ -283,6 +283,72 @@ askButton.textContent = "Thinking...";
                 loadingMessage.textContent =
     result.answer;
 
+if (result.sources) {
+
+    const messageWrapper =
+        loadingMessage.parentElement;
+
+    addSources(
+        messageWrapper,
+        result.sources
+    );
+}
+
+function addSources(wrapper, sources) {
+
+    if (!sources || sources.length === 0) {
+        return;
+    }
+
+    const existingSources =
+        wrapper.querySelector(".message-sources");
+
+    if (existingSources) {
+        existingSources.remove();
+    }
+
+    const sourcesElement =
+        document.createElement("div");
+
+    sourcesElement.classList.add(
+        "message-sources"
+    );
+
+    const sourcesTitle =
+        document.createElement("div");
+
+    sourcesTitle.classList.add(
+        "sources-title"
+    );
+
+    sourcesTitle.textContent = "Sources";
+
+    sourcesElement.appendChild(
+        sourcesTitle
+    );
+
+    sources.forEach((source) => {
+
+        const sourceItem =
+            document.createElement("span");
+
+        sourceItem.classList.add(
+            "source-item"
+        );
+
+        sourceItem.textContent =
+            `Page ${source.page_number}`;
+
+        sourcesElement.appendChild(
+            sourceItem
+        );
+    });
+
+    wrapper.appendChild(
+        sourcesElement
+    );
+}
+
 if (result.sources && result.sources.length > 0) {
     addSources(
         loadingMessage.parentElement,
@@ -320,7 +386,7 @@ askButton.textContent = "Ask";
     // Add Chat Message
     // -------------------------
 
- function addMessage(text, className) {
+ function addMessage(text, className, sources = []) {
 
     const currentEmptyChat =
     document.getElementById("empty-chat");
@@ -370,6 +436,39 @@ if (currentEmptyChat) {
 
     message.textContent = text;
 
+    if (
+    className === "ai-message" &&
+    sources.length > 0
+) {
+    const sourcesElement =
+        document.createElement("div");
+
+    sourcesElement.classList.add("message-sources");
+
+    const sourcesTitle =
+        document.createElement("div");
+
+    sourcesTitle.classList.add("sources-title");
+
+    sourcesTitle.textContent = "Sources";
+
+    sourcesElement.appendChild(sourcesTitle);
+
+    sources.forEach((source) => {
+
+        const sourceItem =
+            document.createElement("span");
+
+        sourceItem.classList.add("source-item");
+
+        sourceItem.textContent =
+            `Page ${source.page_number}`;
+
+        sourcesElement.appendChild(sourceItem);
+    });
+
+    wrapper.appendChild(sourcesElement);
+}
 
     wrapper.appendChild(label);
     wrapper.appendChild(message);
@@ -478,3 +577,4 @@ function setMessageError(messageElement, text) {
     messageElement.classList.remove("ai-message");
     messageElement.classList.add("error-message");
 }
+
