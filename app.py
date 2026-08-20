@@ -44,8 +44,10 @@ def upload_pdf():
     file_path = os.path.join(UPLOAD_FOLDER, filename)
 
     file.save(file_path)
+   
 
     try:
+        
         document_id = ingest_pdf(file_path)
 
     except ValueError as e:
