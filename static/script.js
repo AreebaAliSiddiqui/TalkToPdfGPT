@@ -41,6 +41,12 @@
     const askButton =
     questionForm.querySelector("button");
 
+    const activeDocumentName =
+    document.getElementById("active-document-name");
+
+    const replaceDocumentButton =
+    document.getElementById("replace-document-button");
+
     function setUploadStatus(message, statusType) {
 
     uploadStatus.textContent = message;
@@ -120,6 +126,9 @@ uploadButton.textContent = "Processing...";
                 activeDocumentId =
                     result.document_id;
 
+                activeDocumentName.textContent =
+    file.name;
+
 
                 setUploadStatus(
     "PDF uploaded successfully!",
@@ -153,6 +162,36 @@ uploadButton.textContent = "Upload PDF";
         }
     );
 
+    replaceDocumentButton.addEventListener(
+    "click",
+    () => {
+
+        activeDocumentId = null;
+
+        activeDocumentName.textContent = "";
+
+        documentStatus.style.display = "none";
+
+        fileInput.value = "";
+
+        chatMessages.innerHTML = `
+            <div
+                id="empty-chat"
+                class="empty-chat"
+            >
+                <p>
+                    Upload a PDF to start chatting with it.
+                </p>
+            </div>
+        `;
+
+        uploadStatus.textContent = "";
+
+        questionInput.value = "";
+
+        console.log("Active document cleared.");
+    }
+);
 
     // -------------------------
     // Ask Question
@@ -283,9 +322,12 @@ askButton.textContent = "Ask";
 
  function addMessage(text, className) {
 
-    if (emptyChat) {
-        emptyChat.remove();
-    }
+    const currentEmptyChat =
+    document.getElementById("empty-chat");
+
+if (currentEmptyChat) {
+    currentEmptyChat.remove();
+}
 
     const wrapper =
         document.createElement("div");
