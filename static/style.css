@@ -84,6 +84,23 @@
             font-size: 14px;
         }
 
+.status-processing {
+    color: #FF9800;
+}
+
+.status-success {
+    color: #166534;
+}
+
+.status-error {
+    color: #b91c1c;
+}
+.error-message {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-bottom-left-radius: 4px;
+}
+
         /* Active document */
 
         .document-status {

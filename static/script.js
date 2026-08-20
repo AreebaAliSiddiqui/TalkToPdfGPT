@@ -40,6 +40,21 @@
 
     const askButton =
     questionForm.querySelector("button");
+
+    function setUploadStatus(message, statusType) {
+
+    uploadStatus.textContent = message;
+
+    uploadStatus.classList.remove(
+        "status-processing",
+        "status-success",
+        "status-error"
+    );
+
+    if (statusType) {
+        uploadStatus.classList.add(statusType);
+    }
+}
     // -------------------------
     // PDF Upload
     // -------------------------
@@ -60,8 +75,10 @@
                 return;
             }
 
-            uploadStatus.textContent =
-                "Uploading and processing PDF...";
+            setUploadStatus(
+    "Uploading and processing PDF...",
+    "status-processing"
+);
 
             documentStatus.style.display = "none";
 
@@ -91,9 +108,10 @@ uploadButton.textContent = "Processing...";
 
                 if (!response.ok) {
 
-                    uploadStatus.textContent =
-                        result.error ||
-                        "Upload failed.";
+                   setUploadStatus(
+    result.error || "Upload failed.",
+    "status-error"
+); 
 
                     return;
                 }
@@ -103,8 +121,10 @@ uploadButton.textContent = "Processing...";
                     result.document_id;
 
 
-                uploadStatus.textContent =
-                    "PDF uploaded successfully!";
+                setUploadStatus(
+    "PDF uploaded successfully!",
+    "status-success"
+);
 
 
                 documentStatus.style.display =
@@ -119,8 +139,10 @@ uploadButton.textContent = "Processing...";
 
             } catch (error) {
 
-                uploadStatus.textContent =
-                    "Something went wrong while uploading the PDF.";
+                setUploadStatus(
+    "Something went wrong while uploading the PDF.",
+    "status-error"
+);
 
                 console.error(error);
             }
@@ -209,9 +231,11 @@ askButton.textContent = "Thinking...";
 
                 if (!response.ok) {
 
-                    loadingMessage.textContent =
-                        result.error ||
-                        "Unable to answer the question.";
+                   setMessageError(
+    loadingMessage,
+    result.error ||
+    "Unable to answer the question."
+);
 
                     return;
                 }
@@ -238,8 +262,10 @@ if (result.sources && result.sources.length > 0) {
                 const loadingMessage =
                     messages[messages.length - 1];
 
-                loadingMessage.textContent =
-                    "Something went wrong while asking the question.";
+                setMessageError(
+    loadingMessage,
+    "Something went wrong while asking the question."
+);
 
                 console.error(error);
             } finally{
@@ -402,3 +428,11 @@ function addSources(wrapper, sources) {
         questionInput.value = "";
     }
 );
+
+function setMessageError(messageElement, text) {
+
+    messageElement.textContent = text;
+
+    messageElement.classList.remove("ai-message");
+    messageElement.classList.add("error-message");
+}
