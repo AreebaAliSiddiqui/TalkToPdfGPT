@@ -26,13 +26,18 @@ def retrieve(query, document_id, n_results=5):
 
     query_vector = embed_query(query)
 
-    results = collection.query(
+    try:
+        results = collection.query(
         query_embeddings=[query_vector],
         n_results=n_results,
         where={
             "document_id": document_id
         }
     )
+    except Exception as e:
+        raise RuntimeError(
+        "The vector store is currently unavailable. Please try again later."
+    ) from e
 
     documents = results["documents"][0]
     metadatas = results["metadatas"][0]

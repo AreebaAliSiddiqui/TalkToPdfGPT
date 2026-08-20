@@ -59,10 +59,14 @@ def ask_question():
     if not document_id:
         return jsonify({"error": "No document selected"}), 400
 
-    retrieved_chunks = retrieve(
-        question,
-        document_id  
-    )
+    try:
+        retrieved_chunks = retrieve(
+            question,
+            document_id  
+        )
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 500
+
     if not retrieved_chunks:
         return jsonify({
             "answer": "Your question doesn't seem to be answered by the active PDF."
