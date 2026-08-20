@@ -28,20 +28,41 @@ def _chunk_to_text(chunk):
 
 def embed_chunks(chunks):
     """
-    Takes a list of text chunks and returns 
+    Takes a list of text chunks and returns
     a list of embedding vectors.
     """
-    response = client.models.embed_content(
-        model="gemini-embedding-2",
-        contents=[
-            types.Content(
-                parts=[
-                    types.Part.from_text(text=_chunk_to_text(chunk))
+
+    vectors = []
+
+    batch_size = 100
+
+    for i in range(0, len(chunks), batch_size):
+        batch = chunks[i:i + batch_size]
+
+        try:
+            response = client.models.embed_content(
+                model="gemini-embedding-2",
+                contents=[
+                    types.Content(
+                        parts=[
+                            types.Part.from_text(
+                                text=_chunk_to_text(chunk)
+                            )
+                        ]
+                    )
+                    for chunk in batch
                 ]
             )
-            for chunk in chunks
-        ]
-    )
-    vectors = [embedding.values for embedding in response.embeddings]
+
+            vectors.extend(
+                embedding.values
+                for embedding in response.embeddings
+            )
+
+        except Exception as e:
+            raise RuntimeError(
+                "The AI embedding service is currently unavailable. "
+                "Please try again later."
+            ) from e
 
     return vectors

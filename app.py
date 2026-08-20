@@ -9,8 +9,17 @@ from generation.generator import generate_answer
 
 app = Flask(__name__)
 
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB
+
 UPLOAD_FOLDER = "data/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
+@app.errorhandler(413)
+def file_too_large(error):
+    return jsonify({
+        "error": "PDF file is too large. Maximum allowed size is 10 MB."
+    }), 413
 
 
 @app.route("/")
@@ -38,13 +47,34 @@ def upload_pdf():
 
     try:
         document_id = ingest_pdf(file_path)
+
     except ValueError as e:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
         return jsonify({"error": str(e)}), 400
+
+    except RuntimeError as e:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        return jsonify({
+            "error": str(e)
+        }), 503
+
+    except Exception:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        return jsonify({
+            "error": "Something went wrong while processing the PDF."
+        }), 500
 
     return jsonify({
         "message": "PDF uploaded and ingested successfully",
         "document_id": document_id
     })
+
 
 @app.route("/ask", methods=["POST"])
 def ask_question():
@@ -62,24 +92,36 @@ def ask_question():
     try:
         retrieved_chunks = retrieve(
             question,
-            document_id  
+            document_id
         )
+
     except RuntimeError as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 503
+
+    except Exception:
+        return jsonify({
+            "error": "Something went wrong while retrieving information."
+        }), 500
 
     if not retrieved_chunks:
         return jsonify({
             "answer": "Your question doesn't seem to be answered by the active PDF."
         })
-    # Here you would call your retrieval and answer generation logic
+
     try:
         answer = generate_answer(question, retrieved_chunks)
+
     except RuntimeError as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 503
+
+    except Exception:
+        return jsonify({
+            "error": "Something went wrong while generating the answer."
+        }), 500
 
     return jsonify({
-    "answer": answer
-})
+        "answer": answer
+    })
 
 
 if __name__ == "__main__":
