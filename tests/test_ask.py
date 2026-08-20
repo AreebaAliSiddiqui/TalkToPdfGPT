@@ -80,3 +80,30 @@ def test_ask_returns_fallback_when_no_chunks_found():
     assert data["answer"] == (
         "Your question doesn't seem to be answered by the active PDF."
     )
+def test_ask_generation_failure_returns_503():
+    client = app.test_client()
+
+    with patch(
+        "app.retrieve",
+        return_value=["Relevant document chunk"]
+    ), patch(
+        "app.generate_answer",
+        side_effect=RuntimeError(
+            "The AI generation service is currently unavailable."
+        )
+    ):
+        response = client.post(
+            "/ask",
+            json={
+                "question": "What is this document about?",
+                "document_id": "test-document-id"
+            }
+        )
+
+    assert response.status_code == 503
+
+    data = response.get_json()
+
+    assert data["error"] == (
+        "The AI generation service is currently unavailable."
+    )
