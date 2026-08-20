@@ -37,3 +37,21 @@ def test_upload_rejects_missing_file():
     data = response.get_json()
 
     assert data["error"] == "No file uploaded"
+
+def test_upload_rejects_file_too_large():
+    client = app.test_client()
+
+    response = client.post(
+        "/upload",
+        data=b"0" * (10 * 1024 * 1024 + 1),
+        content_type="application/pdf",
+        content_length=10 * 1024 * 1024 + 1
+    )
+
+    assert response.status_code == 413
+
+    data = response.get_json()
+
+    assert data["error"] == (
+        "PDF file is too large. Maximum allowed size is 10 MB."
+    )
