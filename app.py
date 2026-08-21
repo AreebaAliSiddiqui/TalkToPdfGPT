@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB
 
-UPLOAD_FOLDER = "data/uploads"
+UPLOAD_FOLDER = os.path.join(app.root_path, "data", "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
@@ -79,7 +79,8 @@ def upload_pdf():
 
 @app.route("/ask", methods=["POST"])
 def ask_question():
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
+
 
     question = data.get("question")
     document_id = data.get("document_id")
@@ -134,5 +135,5 @@ def ask_question():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
 
