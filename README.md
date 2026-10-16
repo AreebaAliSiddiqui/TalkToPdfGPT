@@ -1,4 +1,3 @@
-
 ---
 title: TalktoPdfGPT
 emoji: 📚
@@ -11,219 +10,179 @@ pinned: false
 
 # TalktoPdfGPT
 
-> A Retrieval-Augmented Generation (RAG) chatbot that lets users upload a PDF and ask questions about its content.
+**A Retrieval-Augmented Generation (RAG) application that lets users upload a PDF and ask questions grounded in its content.**
 
-TalktoPdfGPT is a full-stack AI application built with Flask, Google Gemini, and ChromaDB. It processes uploaded PDF documents, converts their content into searchable vector representations, retrieves the most relevant document chunks for a user's question, and generates an answer grounded in the retrieved context.
+🔗 **Live Demo:** [Try TalktoPdfGPT](https://talktopdfgpt-ddd53.containers.snapdeploy.app)
 
-The application is designed to keep answers tied to the uploaded document rather than relying solely on the language model's general knowledge.
+TalktoPdfGPT is an AI application built with Python, Google Gemini, and ChromaDB. It processes PDF documents, converts their content into searchable vector representations, retrieves relevant document chunks, and generates answers grounded in the retrieved context.
+
+The application is designed to answer questions using the selected document rather than relying solely on the language model's general knowledge. When relevant information cannot be found, it can report that the information was not found in the provided PDF.
 
 ## Features
 
-* 📄 **PDF Upload**
+### 📄 PDF Upload
+- Upload PDF documents through the web interface.
+- Validate file types and reject missing or empty submissions.
+- Enforce a 10 MB upload limit.
 
-  * Upload PDF documents directly through the web interface.
-  * Rejects non-PDF files.
-  * Rejects missing or empty file submissions.
-  * Enforces a 10 MB upload limit.
+### 🔍 Document Processing
+- Extract text from PDFs using `pypdf`.
+- Split extracted text into manageable chunks.
+- Generate embeddings using Google's Gemini embedding model.
+- Store document embeddings in ChromaDB for similarity-based retrieval.
 
-* 🔍 **Document Processing**
+### 💬 RAG Question Answering
+- Ask questions about the uploaded PDF.
+- Retrieve relevant document chunks for each question.
+- Generate context-grounded answers using Google Gemini.
+- Display source page and chunk references alongside answers.
+- Handle questions whose answers are not found in the document.
 
-  * Extracts text from PDFs using `pypdf`.
-  * Splits extracted text into manageable chunks.
-  * Generates embeddings for document chunks using Google's Gemini embedding model.
-  * Stores embeddings in ChromaDB.
+### 📚 Document Isolation
+- Associate retrieval with the active document.
+- Restrict retrieval to the selected document to prevent unintended cross-document results.
 
-* 💬 **RAG Question Answering**
+### 🛡️ Error Handling
+- Validate invalid, empty, and oversized uploads.
+- Handle ingestion, retrieval, and generation failures.
+- Clean up uploaded files when ingestion fails.
+- Return appropriate error responses in the Flask application.
 
-  * Ask questions about the currently selected PDF.
-  * Retrieves relevant chunks from the active document.
-  * Generates answers using Google Gemini.
-  * Returns source page and chunk references alongside answers.
+### 🎨 User Interface
+- Interactive PDF upload and status feedback.
+- Chat-style question-and-answer interface.
+- Loading indicators during answer generation.
+- Clear chat functionality.
+- Source references for retrieved document content.
+- Responsive layout for smaller screens.
 
-* 📚 **Document Isolation**
+### 🧪 Automated Testing
+The Flask application includes a pytest suite covering application setup, upload validation, successful uploads, ingestion failures, and question-answering endpoint validation and failure handling.
 
-  * Tracks the active document using a unique document ID.
-  * Retrieval is restricted to the selected document.
-  * Prevents accidental cross-document retrieval.
+**Reported test status:** 11 tests passing.
 
-* 🛡️ **Error Handling**
+## Live Demo
 
-  * Handles invalid uploads.
-  * Handles oversized files.
-  * Handles ingestion failures.
-  * Cleans up uploaded files when ingestion fails.
-  * Handles retrieval and generation failures.
-  * Returns appropriate HTTP error responses.
+**[Open TalktoPdfGPT](https://talktopdfgpt-ddd53.containers.snapdeploy.app)**
 
-* 🎨 **Chat Interface**
+The application has been deployed on SnapDeploy and tested with a live PDF upload and question-answering workflow. An unrelated question about Friedrich Nietzsche returned a message indicating that the information was not found in the provided PDF, demonstrating the intended document-grounding behavior for that test.
 
-  * Separate HTML, CSS, and JavaScript files.
-  * Interactive upload status.
-  * Chat-style question and answer interface.
-  * Loading state while generating answers.
-  * Clear chat functionality.
-  * Source display for retrieved document content.
-  * Responsive layout for smaller screens.
-
-* 🧪 **Automated Testing**
-
-  * Pytest test suite covering application setup, upload validation, successful uploads, ingestion failures, and `/ask` endpoint validation and failure handling.
-  * Current test suite: **11 tests passing**.
+The free deployment may sleep after 15 minutes of inactivity, so the first request after idle time may take longer to respond.
 
 ## How It Works
 
-TalktoPdfGPT follows a standard Retrieval-Augmented Generation pipeline:
+TalktoPdfGPT follows a Retrieval-Augmented Generation pipeline.
+
+### Document ingestion
+
+1. **PDF upload:** The user uploads a document.
+2. **PDF parsing:** `pypdf` extracts the document's text.
+3. **Text chunking:** The extracted text is divided into manageable chunks.
+4. **Embedding generation:** Gemini converts chunks into vector representations.
+5. **Vector storage:** ChromaDB stores the vectors and associated document metadata.
+
+### Question answering
+
+1. **Question input:** The user asks a question about the PDF.
+2. **Query embedding:** The question is converted into a vector representation.
+3. **Similarity retrieval:** ChromaDB retrieves relevant chunks from the active document.
+4. **Context construction:** The retrieved text is provided to the language model.
+5. **Answer generation:** Gemini generates an answer based on the retrieved context.
+6. **Source attribution:** The application returns page and chunk references where available.
 
 ```text
-                    ┌─────────────────┐
-                    │    PDF Upload   │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │   PDF Parsing   │
-                    │     pypdf       │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │ Text Chunking   │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │    Gemini       │
-                    │   Embeddings    │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │    ChromaDB     │
-                    │  Vector Store   │
-                    └─────────────────┘
+PDF Upload
+    |
+    v
+PDF Parsing (pypdf)
+    |
+    v
+Text Chunking
+    |
+    v
+Gemini Embeddings
+    |
+    v
+ChromaDB Vector Store
 
 
 User Question
-      │
-      ▼
-┌─────────────────┐
-│  Query Embedding│
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│ Chroma Retrieval│
-│ Active Document │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│ Retrieved Chunks│
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│ Gemini Generator│
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│ Answer + Sources│
-└─────────────────┘
+    |
+    v
+Query Embedding
+    |
+    v
+Relevant Chunk Retrieval
+    |
+    v
+Context-Grounded Gemini Answer
+    |
+    v
+Answer + Source References
 ```
 
 ## Tech Stack
 
-### Backend
-
-* Python
-* Flask
-* Gunicorn
-
-### AI / RAG
-
-* Google Gemini
-* Google GenAI Python SDK
-* Gemini embeddings
-* ChromaDB
-* LangChain text splitters
-
-### Document Processing
-
-* pypdf
-
-### Frontend
-
-* HTML
-* CSS
-* JavaScript
-
-### Testing
-
-* pytest
-
-### Configuration
-
-* python-dotenv
-* Environment variables for API credentials
+| Component | Technologies |
+|---|---|
+| Language | Python |
+| Original web application | Flask |
+| Alternative deployment interface | Gradio |
+| AI model and embeddings | Google Gemini |
+| GenAI integration | Google GenAI Python SDK |
+| Vector database | ChromaDB |
+| Text chunking | LangChain Text Splitters |
+| PDF processing | pypdf |
+| Frontend | HTML, CSS, JavaScript |
+| Testing | pytest |
+| Configuration | python-dotenv |
+| Containerization | Docker |
+| Hosting | SnapDeploy |
 
 ## Project Structure
 
 ```text
 TalktoPdfGPT/
-│
 ├── app.py
-│
-├── embeddings/
-│   └── embedder.py
-│
-├── generation/
-│   └── generator.py
-│
+├── gradio_app.py
+├── pipeline/
+│   └── ingest.py
 ├── ingestion/
 │   ├── chunker.py
 │   └── pdf_loader.py
-│
-├── pipeline/
-│   └── ingest.py
-│
+├── embeddings/
+│   └── embedder.py
 ├── retrieval/
 │   └── retriever.py
-│
+├── generation/
+│   └── generator.py
 ├── vectorstore/
 │   └── chroma_store.py
-│
 ├── templates/
 │   └── index.html
-│
 ├── static/
 │   ├── style.css
 │   └── script.js
-│
 ├── tests/
 │   ├── test_ask.py
 │   ├── test_smoke.py
 │   └── test_upload.py
-│
-├── data/
-│   └── uploads/
-│
-├── chroma_db/
-│
-├── .env
+├── Dockerfile
+├── .dockerignore
 ├── .gitignore
-├── pytest.ini
 ├── requirements.txt
 └── README.md
 ```
+
+*Note: Local data and generated vector-store files may be created at runtime and are excluded from the repository.*
 
 ## Getting Started
 
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
-cd TalktoPdfGPT
+git clone https://github.com/AreebaAliSiddiqui/TalkToPdfGPT.git
+cd TalkToPdfGPT
 ```
 
 ### 2. Create a virtual environment
@@ -232,7 +191,7 @@ cd TalktoPdfGPT
 python -m venv .venv
 ```
 
-Activate it on Windows:
+Activate it on Windows PowerShell:
 
 ```powershell
 .venv\Scripts\Activate.ps1
@@ -252,163 +211,144 @@ Create a `.env` file in the project root:
 GEMINI_API_KEY=your_gemini_api_key
 ```
 
-The `.env` file is intentionally excluded from version control.
+Replace the placeholder with your own Gemini API key. Never commit the `.env` file or expose API credentials publicly.
 
 ### 5. Run the application
 
-For local development:
+For the original Flask interface:
 
 ```bash
 python app.py
 ```
 
-The application will be available at:
+For the Gradio interface used by the Docker deployment:
 
-```text
-http://127.0.0.1:5000
+```bash
+python gradio_app.py
 ```
+
+The Flask application is typically available at `http://127.0.0.1:5000`. The Gradio application's port is configurable through the `PORT` environment variable and defaults to `7860` when no port is supplied.
 
 ## Running Tests
 
-Run the complete test suite with:
+Run the test suite with:
 
 ```bash
 pytest
 ```
 
-The project currently contains **11 automated tests** covering:
+The existing test suite covers cases including:
 
-* Application test configuration
-* Missing upload files
-* Empty filenames
-* Non-PDF uploads
-* Oversized PDF uploads
-* Successful PDF uploads
-* Ingestion failure cleanup
-* Missing questions
-* Missing document IDs
-* Retrieval failures
-* Generation failure handling
+- Application setup
+- Missing upload files and empty filenames
+- Invalid file types
+- Oversized PDF uploads
+- Successful PDF uploads
+- Cleanup after ingestion failures
+- Missing questions and document IDs
+- Retrieval and generation failures
 
-Expected result:
-
-```text
-11 passed
-```
+**Expected result:** 11 passing tests, based on the current reported test status.
 
 ## Error Handling
 
-TalktoPdfGPT uses explicit HTTP responses for common failure cases.
+The Flask application defines explicit responses for common failure conditions.
 
-| Situation                          | HTTP Status |
-| ---------------------------------- | ----------: |
-| Missing uploaded file              |       `400` |
-| Empty filename                     |       `400` |
-| Non-PDF file                       |       `400` |
-| Missing question                   |       `400` |
-| Missing document                   |       `400` |
-| File exceeds 10 MB                 |       `413` |
-| AI / embedding service unavailable |       `503` |
-| Retrieval failure                  |       `503` |
-| Generation failure                 |       `503` |
-| Unexpected server error            |       `500` |
+| Situation | HTTP status |
+|---|---:|
+| Missing uploaded file | 400 |
+| Empty filename | 400 |
+| Non-PDF file | 400 |
+| Missing question | 400 |
+| Missing document | 400 |
+| File exceeds 10 MB | 413 |
+| AI or embedding service unavailable | 503 |
+| Retrieval failure | 503 |
+| Generation failure | 503 |
+| Unexpected server error | 500 |
 
-Uploaded files are also removed when document ingestion fails, preventing failed uploads from being left behind on disk.
+Uploaded files are also removed when ingestion fails, helping prevent failed uploads from being left behind on disk.
 
 ## Source Attribution
 
-When relevant chunks are retrieved successfully, the application returns source metadata including:
+When relevant document chunks are retrieved, the application can return source metadata including:
 
-* Page number
-* Chunk number
+- Page number
+- Chunk number
 
-This allows the interface to show where the generated answer was derived from within the uploaded document.
+These references help users identify where the retrieved information originated in the uploaded PDF.
 
 ## Security and Configuration
 
-The application keeps sensitive configuration outside the repository using environment variables.
+Sensitive configuration is supplied through environment variables rather than committed to the repository.
 
-The following are excluded from version control:
+The following should remain excluded from version control:
 
 ```text
 .env
-data/
-chroma_db/
 .venv/
 __pycache__/
+chroma_db/
+data/
 ```
 
-API credentials should never be committed to the repository.
-
-For a public GitHub repository, GitHub recommends enabling available security features such as secret scanning, push protection, Dependabot alerts, and code scanning where appropriate.
+API credentials should never be committed to GitHub. Production deployments should configure secrets through the hosting provider's environment-variable settings.
 
 ## Current Status
 
 ### Application Development
 
-**Complete — v1.0**
-
-* Core Flask application ✅
-* PDF ingestion pipeline ✅
-* Text chunking ✅
-* Gemini embeddings ✅
-* ChromaDB vector storage ✅
-* Document-specific retrieval ✅
-* Gemini answer generation ✅
-* Source references ✅
-* Chat interface ✅
-* Upload validation ✅
-* Error handling ✅
-* Automated test suite ✅
-* Production debug mode disabled ✅
-* Dependency cleanup ✅
+- [x] PDF ingestion pipeline
+- [x] Text extraction and chunking
+- [x] Gemini embedding generation
+- [x] ChromaDB vector storage
+- [x] Document-specific retrieval
+- [x] Gemini answer generation
+- [x] Source references
+- [x] Interactive question-answering interface
+- [x] Upload validation and error handling
+- [x] Automated test suite
 
 ### Deployment
 
-**Pending**
+- [x] Docker configuration
+- [x] Public SnapDeploy deployment
+- [x] Production environment variables configured
+- [x] Live PDF upload tested
+- [x] Live question answering tested
+- [x] Out-of-document question tested
 
-The application is production-configured at the code level, but a live deployment has not yet been completed.
-
-The remaining work is infrastructure-specific:
-
-* Hosting provider
-* Persistent storage
-* Production environment variables
-* Production deployment
-* Live end-to-end verification
-
-The local application and automated test suite are complete independently of the deployment environment.
+**Status: Deployed and live-tested.**
 
 ## Future Improvements
 
 Potential improvements for future versions include:
 
-* Persistent cloud object storage for uploaded documents
-* Managed vector database or persistent Chroma deployment
-* User authentication
-* Multiple document management
-* Conversation persistence
-* Streaming model responses
-* Improved source citation UI
-* PDF page previews
-* Rate limiting
-* Production monitoring and logging
-* CI/CD pipeline
-* Automated deployment
+- Persistent cloud storage for uploaded documents
+- Managed vector database or durable vector-store persistence
+- User authentication
+- Multi-document management
+- Conversation history
+- Streaming model responses
+- Improved source citation interface
+- PDF page previews
+- Rate limiting and usage controls
+- Production monitoring and logging
+- Continuous integration and deployment
 
 ## Why RAG?
 
-A general-purpose LLM can answer many questions about text supplied directly in a prompt, but a dedicated RAG pipeline provides an application-level retrieval layer between the user's question and the language model.
+A general-purpose language model can answer questions about text supplied directly in a prompt. Retrieval-Augmented Generation adds an explicit retrieval layer that selects relevant information from a document before the model generates its response.
 
-TalktoPdfGPT uses this layer to:
+TalktoPdfGPT uses this architecture to:
 
-1. Identify relevant sections of the uploaded document.
-2. Restrict retrieval to the active document.
-3. Provide those sections as context to the generator.
-4. Return source metadata with the response.
+- Find relevant sections of an uploaded PDF.
+- Restrict retrieval to the selected document.
+- Provide retrieved passages as context to Gemini.
+- Return source metadata with answers.
+- Test how the application responds when information is not found.
 
-This makes the document-grounding behavior explicit and testable within the application architecture.
-
+This makes document-grounded question answering an explicit part of the application's design.
 
 ## Author
 
@@ -416,8 +356,4 @@ This makes the document-grounding behavior explicit and testable within the appl
 
 Computer Science student and AI/ML developer.
 
----
-
-### Project Focus
-
-`Python` · `Flask` · `RAG` · `LLMs` · `Gemini` · `ChromaDB` · `PDF Processing` · `AI Engineering`
+**Project focus:** Python · RAG · LLMs · Google Gemini · ChromaDB · PDF Processing · AI Engineering
