@@ -21,7 +21,7 @@ def generate_answer(query, retrieved_chunks):
     for chunk in retrieved_chunks:
         context_parts.append(
             f"Page {chunk['page_number']}:\n{chunk['text']}"
-    )
+        )
 
     context = "\n\n".join(context_parts)
 
@@ -41,15 +41,15 @@ PDF CONTEXT:
 USER QUESTION:
 {query}
 """
+
     try:
         response = client.models.generate_content(
-        model="invalid-model-for-testing",
-        contents=prompt
-    )
+            model="gemini-3.6-flash",
+            contents=prompt
+        )
     except Exception as e:
-        raise RuntimeError(
-        "The AI service is currently unavailable. Please try again later."
-    ) from e
+        print("GENERATION ERROR:", repr(e))
+        raise
 
     return response.text
 

@@ -88,7 +88,8 @@ def test_upload_success():
 def test_upload_ingestion_failure_deletes_file():
     client = app.test_client()
 
-    upload_folder = "data/uploads"
+    upload_folder = os.path.join(app.root_path, "data", "uploads")
+    os.makedirs(upload_folder, exist_ok=True)
 
     files_before = set(os.listdir(upload_folder))
 
