@@ -1,13 +1,3 @@
----
-title: TalktoPdfGPT
-emoji: 📚
-colorFrom: blue
-colorTo: purple
-sdk: gradio
-app_file: gradio_app.py
-pinned: false
----
-
 # TalktoPdfGPT
 
 **A Retrieval-Augmented Generation (RAG) application that lets users upload a PDF and ask questions grounded in its content.**
